@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jujutsu (jj) - tradutor de comandos Git</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 2rem auto;
+        max-width: 760px;
+        padding: 0 1rem;
+        line-height: 1.5;
+      }
+      .card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+      }
+      input, button {
+        width: 100%;
+        padding: 0.7rem;
+        margin-top: 0.5rem;
+        box-sizing: border-box;
+      }
+      button {
+        cursor: pointer;
+      }
+      code {
+        display: block;
+        margin-top: 0.75rem;
+        padding: 0.75rem;
+        background: #f6f8fa;
+        border-radius: 6px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      small {
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Jujutsu (jj) para abstrair comandos Git</h1>
+    <p>Digite um comando Git para ver uma alternativa comum em <strong>jj</strong>.</p>
+
+    <div class="card">
+      <label for="gitCommand">Comando Git</label>
+      <input id="gitCommand" type="text" placeholder="Ex.: git status" />
+      <button id="convertButton" type="button">Converter para jj</button>
+      <code id="result">Digite um comando e clique em "Converter para jj".</code>
+      <small>Obs.: o mapeamento é uma referência inicial para comandos comuns.</small>
+    </div>
+
+    <script>
+      const commandMap = [
+        { git: /^git\s+status$/i, jj: "jj st" },
+        { git: /^git\s+add\s+(.+)$/i, jj: "jj file track $1" },
+        { git: /^git\s+add\s+\.$/i, jj: "jj file track ." },
+        { git: /^git\s+commit\s+-m\s+(["'])(.+)\1$/i, jj: "jj commit -m \"$2\"" },
+        { git: /^git\s+log$/i, jj: "jj log" },
+        { git: /^git\s+checkout\s+(.+)$/i, jj: "jj new $1" },
+        { git: /^git\s+branch$/i, jj: "jj branch list" },
+        { git: /^git\s+branch\s+(.+)$/i, jj: "jj branch create $1" },
+        { git: /^git\s+merge\s+(.+)$/i, jj: "jj squash --from $1" },
+        { git: /^git\s+rebase\s+(.+)$/i, jj: "jj rebase -d $1" },
+      ];
+
+      function translateGitToJj(input) {
+        const value = input.trim().replace(/\s+/g, " ");
+        for (const mapping of commandMap) {
+          const match = value.match(mapping.git);
+          if (match) {
+            return value.replace(mapping.git, mapping.jj);
+          }
+        }
+        return "Comando não mapeado. Consulte: https://github.com/jj-vcs/jj";
+      }
+
+      const input = document.getElementById("gitCommand");
+      const button = document.getElementById("convertButton");
+      const result = document.getElementById("result");
+
+      function handleConvert() {
+        result.textContent = translateGitToJj(input.value);
+      }
+
+      button.addEventListener("click", handleConvert);
+      input.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          handleConvert();
+        }
+      });
+    </script>
+  </body>
+</html>
